@@ -33,7 +33,7 @@ theme:
   # favicon: assets/logo.png
 repo_name: bolt.diy
 repo_url: https://github.com/stackblitz-labs/bolt.diy
-edit_uri: ''
+edit_uri: ""
 
 extra:
   generator: false

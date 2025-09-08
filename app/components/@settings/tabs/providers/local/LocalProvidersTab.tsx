@@ -334,7 +334,10 @@ export default function LocalProvidersTab() {
         <div className="flex items-center justify-between gap-4 border-b border-bolt-elements-borderColor pb-4">
           <div className="flex items-center gap-3">
             <motion.div
-              className={classNames('w-10 h-10 flex items-center justify-center rounded-xl', 'bg-purple-500/10 text-purple-500')}
+              className={classNames(
+                'w-10 h-10 flex items-center justify-center rounded-xl',
+                'bg-purple-500/10 text-purple-500',
+              )}
               whileHover={{ scale: 1.05 }}
             >
               <BiChip className="w-6 h-6" />
@@ -351,7 +354,11 @@ export default function LocalProvidersTab() {
 
           <div className="flex items-center gap-2">
             <span className="text-sm text-bolt-elements-textSecondary">Ativar todos</span>
-            <Switch checked={categoryEnabled} onCheckedChange={handleToggleCategory} aria-label="Toggle all local providers" />
+            <Switch
+              checked={categoryEnabled}
+              onCheckedChange={handleToggleCategory}
+              aria-label="Toggle all local providers"
+            />
           </div>
         </div>
 
@@ -405,7 +412,12 @@ export default function LocalProvidersTab() {
 
               <AnimatePresence>
                 {provider.settings.enabled && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-4">
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-4"
+                  >
                     <div className="flex flex-col gap-2">
                       <label className="text-sm text-bolt-elements-textSecondary">API Endpoint</label>
                       {editingProvider === provider.name ? (
@@ -487,7 +499,10 @@ export default function LocalProvidersTab() {
                     {isLoadingModels ? (
                       <div className="space-y-3">
                         {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} className="h-20 w-full bg-bolt-elements-background-depth-3 rounded-lg animate-pulse" />
+                          <div
+                            key={i}
+                            className="h-20 w-full bg-bolt-elements-background-depth-3 rounded-lg animate-pulse"
+                          />
                         ))}
                       </div>
                     ) : ollamaModels.length === 0 ? (
@@ -496,7 +511,12 @@ export default function LocalProvidersTab() {
                         <p>Nenhum modelo instalado</p>
                         <p className="text-sm text-bolt-elements-textTertiary px-1">
                           Veja{' '}
-                          <a href="https://ollama.com/library" target="_blank" rel="noopener noreferrer" className="text-purple-500 hover:underline inline-flex items-center gap-0.5 text-base font-medium">
+                          <a
+                            href="https://ollama.com/library"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-purple-500 hover:underline inline-flex items-center gap-0.5 text-base font-medium"
+                          >
                             ollama.com/library <div className="i-ph:arrow-square-out text-xs" />
                           </a>{' '}
                           e instale pelo nome.
@@ -506,7 +526,12 @@ export default function LocalProvidersTab() {
                       ollamaModels.map((model) => (
                         <motion.div
                           key={model.name}
-                          className={classNames('p-4 rounded-xl', 'bg-bolt-elements-background-depth-3', 'hover:bg-bolt-elements-background-depth-4', 'transition-all duration-200')}
+                          className={classNames(
+                            'p-4 rounded-xl',
+                            'bg-bolt-elements-background-depth-3',
+                            'hover:bg-bolt-elements-background-depth-4',
+                            'transition-all duration-200',
+                          )}
                           whileHover={{ scale: 1.01 }}
                         >
                           <div className="flex items-center justify-between">
@@ -527,7 +552,10 @@ export default function LocalProvidersTab() {
                           </div>
                           {model.progress && (
                             <div className="mt-3">
-                              <Progress value={Math.round((model.progress.current / model.progress.total) * 100)} className="h-1" />
+                              <Progress
+                                value={Math.round((model.progress.current / model.progress.total) * 100)}
+                                className="h-1"
+                              />
                               <div className="flex justify-between mt-1 text-xs text-bolt-elements-textSecondary">
                                 <span>{model.progress.status}</span>
                                 <span>{Math.round((model.progress.current / model.progress.total) * 100)}%</span>
@@ -584,9 +612,13 @@ export default function LocalProvidersTab() {
                         <div className="flex items-center gap-2">
                           <h3 className="text-md font-semibold text-bolt-elements-textPrimary">{provider.name}</h3>
                           <div className="flex gap-1">
-                            <span className="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-500">Local</span>
+                            <span className="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-500">
+                              Local
+                            </span>
                             {URL_CONFIGURABLE_PROVIDERS.includes(provider.name) && (
-                              <span className="px-2 py-0.5 text-xs rounded-full bg-purple-500/10 text-purple-500">Configurable</span>
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-purple-500/10 text-purple-500">
+                                Configurable
+                              </span>
                             )}
                           </div>
                         </div>
@@ -595,18 +627,29 @@ export default function LocalProvidersTab() {
                         </p>
                       </div>
                     </div>
-                    <Switch checked={provider.settings.enabled} onCheckedChange={(c) => handleToggleProvider(provider, c)} aria-label={`Toggle ${provider.name}`} />
+                    <Switch
+                      checked={provider.settings.enabled}
+                      onCheckedChange={(c) => handleToggleProvider(provider, c)}
+                      aria-label={`Toggle ${provider.name}`}
+                    />
                   </div>
 
                   <AnimatePresence>
                     {provider.settings.enabled && URL_CONFIGURABLE_PROVIDERS.includes(provider.name) && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-4">
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-4"
+                      >
                         <div className="flex flex-col gap-2">
                           <label className="text-sm text-bolt-elements-textSecondary">API Endpoint</label>
                           {editingProvider === provider.name ? (
                             <input
                               type="text"
-                              defaultValue={provider.settings.baseUrl || (provider.name === 'LMStudio' ? LMSTUDIO_DEFAULT_URL : '')}
+                              defaultValue={
+                                provider.settings.baseUrl || (provider.name === 'LMStudio' ? LMSTUDIO_DEFAULT_URL : '')
+                              }
                               placeholder={provider.name === 'LMStudio' ? LMSTUDIO_DEFAULT_URL : 'http://host:port'}
                               className={classNames(
                                 'w-full px-3 py-2 rounded-lg text-sm',
@@ -634,7 +677,10 @@ export default function LocalProvidersTab() {
                             >
                               <div className="flex items-center gap-2 text-bolt-elements-textSecondary">
                                 <div className="i-ph:link text-sm" />
-                                <span>{provider.settings.baseUrl || (provider.name === 'LMStudio' ? LMSTUDIO_DEFAULT_URL : 'Clique para definir')}</span>
+                                <span>
+                                  {provider.settings.baseUrl ||
+                                    (provider.name === 'LMStudio' ? LMSTUDIO_DEFAULT_URL : 'Clique para definir')}
+                                </span>
                               </div>
                             </div>
                           )}
@@ -682,5 +728,7 @@ function ModelStatusBadge({ status }: { status?: string }) {
   } as const;
   const cfg = (statusConfig as any)[status];
   if (!cfg) return null;
-  return <span className={classNames('px-2 py-0.5 rounded-full text-xs font-medium', cfg.bg, cfg.text)}>{cfg.label}</span>;
+  return (
+    <span className={classNames('px-2 py-0.5 rounded-full text-xs font-medium', cfg.bg, cfg.text)}>{cfg.label}</span>
+  );
 }

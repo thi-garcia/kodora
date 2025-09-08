@@ -11,8 +11,8 @@ export const meta: MetaFunction = () => {
     {
       name: 'description',
       content:
-        'Kodora — IDE com IA para criar, refatorar e lançar apps full-stack. Local (LM Studio/Ollama) ou nuvem (OpenRouter/OpenAI/Anthropic), pipeline e PR reviews.'
-    }
+        'Kodora — IDE com IA para criar, refatorar e lançar apps full-stack. Local (LM Studio/Ollama) ou nuvem (OpenRouter/OpenAI/Anthropic), pipeline e PR reviews.',
+    },
   ];
 };
 

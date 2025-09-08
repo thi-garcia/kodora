@@ -132,8 +132,11 @@ const CloudProvidersTab = () => {
     try {
       if (typeof provider.getDynamicModels === 'function') {
         const result = await provider.getDynamicModels(provider.settings as any);
-        const qtd =
-          Array.isArray(result) ? result.length : Array.isArray((result as any)?.data) ? (result as any).data.length : 0;
+        const qtd = Array.isArray(result)
+          ? result.length
+          : Array.isArray((result as any)?.data)
+            ? (result as any).data.length
+            : 0;
         toast.success(`${provider.name}: conexão OK (${qtd} modelos listados)`);
       } else {
         if (URL_CONFIGURABLE_PROVIDERS.includes(provider.name) && !provider.settings.baseUrl) {
@@ -192,8 +195,7 @@ const CloudProvidersTab = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredProviders.map((provider, index) => {
             const apiKeyLink = getStringOrCall((provider as any).getApiKeyLink);
-            const apiKeyLabel =
-              getStringOrCall((provider as any).labelForGetApiKey) || 'Obter API key';
+            const apiKeyLabel = getStringOrCall((provider as any).labelForGetApiKey) || 'Obter API key';
 
             return (
               <motion.div
@@ -234,7 +236,9 @@ const CloudProvidersTab = () => {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                   >
-                    <div className={classNames('w-6 h-6', 'transition-transform duration-200', 'group-hover:rotate-12')}>
+                    <div
+                      className={classNames('w-6 h-6', 'transition-transform duration-200', 'group-hover:rotate-12')}
+                    >
                       {React.createElement(PROVIDER_ICONS[provider.name as ProviderName] || BsRobot, {
                         className: 'w-full h-full',
                         'aria-label': `${provider.name} logo`,

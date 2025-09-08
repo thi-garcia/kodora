@@ -12,33 +12,45 @@
 }
 
 /* Gradiente do logo {Kodora} */
-.text-gradient-kodora{
-  background: linear-gradient(90deg,#8A5FFF 0%,#B69EFF 45%,#4ADE80 100%);
+.text-gradient-kodora {
+  background: linear-gradient(90deg, #8a5fff 0%, #b69eff 45%, #4ade80 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 /* Sidebar fixo à esquerda */
-.side-menu{
+.side-menu {
   position: fixed;
-  inset: 0 auto 0 0;      /* top:0; right:auto; bottom:0; left:0 */
+  inset: 0 auto 0 0; /* top:0; right:auto; bottom:0; left:0 */
   height: 100vh;
   width: var(--sidebar-current-width);
-  transition: width .20s cubic-bezier(0.4,0,0.2,1), transform .20s cubic-bezier(0.4,0,0.2,1);
-  z-index: 40;            /* abaixo do settings drawer, acima do conteúdo */
+  transition:
+    width 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 40; /* abaixo do settings drawer, acima do conteúdo */
 }
 
 /* Estados de visibilidade condicional de elementos */
-.side-menu .when-expanded{ display: block; }
-.side-menu[data-collapsed="true"] .when-expanded{ display: none; }
+.side-menu .when-expanded {
+  display: block;
+}
+.side-menu[data-collapsed='true'] .when-expanded {
+  display: none;
+}
 
-.side-menu .when-collapsed{ display: none; }
-.side-menu[data-collapsed="true"] .when-collapsed{ display: flex; }
+.side-menu .when-collapsed {
+  display: none;
+}
+.side-menu[data-collapsed='true'] .when-collapsed {
+  display: flex;
+}
 
 /* Botão do cabeçalho do sidebar */
-.kodora-sidebar-top{
-  display:flex; align-items:center; justify-content:space-between;
+.kodora-sidebar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   height: var(--header-height);
   padding: 0 12px;
   border-bottom: 1px solid var(--bolt-elements-borderColor);
@@ -46,18 +58,21 @@
 }
 
 /* Conteúdo principal deve respeitar o sidebar */
-.kodora-content-offset{
+.kodora-content-offset {
   margin-left: var(--sidebar-current-width);
-  transition: margin-left .20s cubic-bezier(0.4,0,0.2,1);
+  transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Um pouquinho de polimento de rolagem */
-.modern-scrollbar{
+.modern-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: var(--bolt-elements-borderColor) transparent;
 }
-.modern-scrollbar::-webkit-scrollbar{ height:12px; width:12px; }
-.modern-scrollbar::-webkit-scrollbar-thumb{
+.modern-scrollbar::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+}
+.modern-scrollbar::-webkit-scrollbar-thumb {
   background-color: var(--bolt-elements-borderColor);
   border-radius: 9999px;
   border: 3px solid transparent;

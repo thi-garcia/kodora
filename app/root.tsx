@@ -15,7 +15,7 @@ import globalStyles from './styles/index.scss?url';
 import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 
 import 'virtual:uno.css';
-import "./styles/kodora.css";
+import './styles/kodora.css';
 
 export const links: LinksFunction = () => [
   {
