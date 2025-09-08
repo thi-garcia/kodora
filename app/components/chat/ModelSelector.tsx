@@ -1,3 +1,5 @@
+// PATH: app/components/chat/ModelSelector.tsx
+
 import type { ProviderInfo } from '~/types/model';
 import { useEffect, useState, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
@@ -15,6 +17,12 @@ interface ModelSelectorProps {
   modelLoading?: string;
 }
 
+/**
+ * Adições:
+ * - Provider "Automatic (recommended)"
+ * - Modelo sintético "auto" quando provider = Automatic
+ * - Pequenos refinamentos de acessibilidade e foco
+ */
 export const ModelSelector = ({
   model,
   setModel,
@@ -37,61 +45,64 @@ export const ModelSelector = ({
   const providerOptionsRef = useRef<(HTMLDivElement | null)[]>([]);
   const providerDropdownRef = useRef<HTMLDivElement>(null);
 
+  const AUTO_PROVIDER: ProviderInfo = { name: 'Automatic' } as ProviderInfo;
+  const AUTO_MODEL: Pick<ModelInfo, 'name' | 'label' | 'provider'> = {
+    name: 'auto',
+    label: 'Auto — deixe o Kodora escolher',
+    provider: 'Automatic',
+  };
+
+  const providerListWithAuto: ProviderInfo[] = [AUTO_PROVIDER, ...providerList];
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (modelDropdownRef.current && !modelDropdownRef.current.contains(event.target as Node)) {
         setIsModelDropdownOpen(false);
         setModelSearchQuery('');
       }
-
       if (providerDropdownRef.current && !providerDropdownRef.current.contains(event.target as Node)) {
         setIsProviderDropdownOpen(false);
         setProviderSearchQuery('');
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const filteredModels = [...modelList]
-    .filter((e) => e.provider === provider?.name && e.name)
-    .filter(
-      (model) =>
-        model.label.toLowerCase().includes(modelSearchQuery.toLowerCase()) ||
-        model.name.toLowerCase().includes(modelSearchQuery.toLowerCase()),
-    );
+  const filteredModels = (() => {
+    if (provider?.name === 'Automatic') {
+      return [AUTO_MODEL].filter(
+        (m) =>
+          m.label.toLowerCase().includes(modelSearchQuery.toLowerCase()) ||
+          m.name.toLowerCase().includes(modelSearchQuery.toLowerCase()),
+      );
+    }
+    return [...modelList]
+      .filter((e) => e.provider === provider?.name && e.name)
+      .filter(
+        (m) =>
+          m.label.toLowerCase().includes(modelSearchQuery.toLowerCase()) ||
+          m.name.toLowerCase().includes(modelSearchQuery.toLowerCase()),
+      );
+  })();
 
-  const filteredProviders = providerList.filter((p) =>
+  const filteredProviders = providerListWithAuto.filter((p) =>
     p.name.toLowerCase().includes(providerSearchQuery.toLowerCase()),
   );
 
-  useEffect(() => {
-    setFocusedModelIndex(-1);
-  }, [modelSearchQuery, isModelDropdownOpen]);
+  useEffect(() => setFocusedModelIndex(-1), [modelSearchQuery, isModelDropdownOpen]);
+  useEffect(() => setFocusedProviderIndex(-1), [providerSearchQuery, isProviderDropdownOpen]);
 
   useEffect(() => {
-    setFocusedProviderIndex(-1);
-  }, [providerSearchQuery, isProviderDropdownOpen]);
-
-  useEffect(() => {
-    if (isModelDropdownOpen && modelSearchInputRef.current) {
-      modelSearchInputRef.current.focus();
-    }
+    if (isModelDropdownOpen && modelSearchInputRef.current) modelSearchInputRef.current.focus();
   }, [isModelDropdownOpen]);
 
   useEffect(() => {
-    if (isProviderDropdownOpen && providerSearchInputRef.current) {
-      providerSearchInputRef.current.focus();
-    }
+    if (isProviderDropdownOpen && providerSearchInputRef.current) providerSearchInputRef.current.focus();
   }, [isProviderDropdownOpen]);
 
   const handleModelKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (!isModelDropdownOpen) {
-      return;
-    }
-
+    if (!isModelDropdownOpen) return;
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
@@ -103,14 +114,12 @@ export const ModelSelector = ({
         break;
       case 'Enter':
         e.preventDefault();
-
         if (focusedModelIndex >= 0 && focusedModelIndex < filteredModels.length) {
           const selectedModel = filteredModels[focusedModelIndex];
           setModel?.(selectedModel.name);
           setIsModelDropdownOpen(false);
           setModelSearchQuery('');
         }
-
         break;
       case 'Escape':
         e.preventDefault();
@@ -121,16 +130,12 @@ export const ModelSelector = ({
         if (!e.shiftKey && focusedModelIndex === filteredModels.length - 1) {
           setIsModelDropdownOpen(false);
         }
-
         break;
     }
   };
 
   const handleProviderKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (!isProviderDropdownOpen) {
-      return;
-    }
-
+    if (!isProviderDropdownOpen) return;
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
@@ -142,24 +147,20 @@ export const ModelSelector = ({
         break;
       case 'Enter':
         e.preventDefault();
-
         if (focusedProviderIndex >= 0 && focusedProviderIndex < filteredProviders.length) {
           const selectedProvider = filteredProviders[focusedProviderIndex];
-
           if (setProvider) {
             setProvider(selectedProvider);
-
-            const firstModel = modelList.find((m) => m.provider === selectedProvider.name);
-
-            if (firstModel && setModel) {
-              setModel(firstModel.name);
+            if (selectedProvider.name === 'Automatic') {
+              setModel?.('auto');
+            } else {
+              const firstModel = modelList.find((m) => m.provider === selectedProvider.name);
+              if (firstModel && setModel) setModel(firstModel.name);
             }
           }
-
           setIsProviderDropdownOpen(false);
           setProviderSearchQuery('');
         }
-
         break;
       case 'Escape':
         e.preventDefault();
@@ -170,7 +171,6 @@ export const ModelSelector = ({
         if (!e.shiftKey && focusedProviderIndex === filteredProviders.length - 1) {
           setIsProviderDropdownOpen(false);
         }
-
         break;
     }
   };
@@ -188,23 +188,14 @@ export const ModelSelector = ({
   }, [focusedProviderIndex]);
 
   useEffect(() => {
-    if (providerList.length === 0) {
-      return;
+    if (providerListWithAuto.length === 0) return;
+    if (!provider || !providerListWithAuto.some((p) => p.name === provider.name)) {
+      setProvider?.(AUTO_PROVIDER);
+      setModel?.('auto');
     }
+  }, [providerListWithAuto, provider, setProvider, setModel]);
 
-    if (provider && !providerList.some((p) => p.name === provider.name)) {
-      const firstEnabledProvider = providerList[0];
-      setProvider?.(firstEnabledProvider);
-
-      const firstModel = modelList.find((m) => m.provider === firstEnabledProvider.name);
-
-      if (firstModel) {
-        setModel?.(firstModel.name);
-      }
-    }
-  }, [providerList, provider, setProvider, modelList, setModel]);
-
-  if (providerList.length === 0) {
+  if (providerListWithAuto.length === 0) {
     return (
       <div className="mb-2 p-4 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary">
         <p className="text-center">
@@ -216,7 +207,7 @@ export const ModelSelector = ({
   }
 
   return (
-    <div className="flex gap-2 flex-col sm:flex-row">
+    <div className="flex gap-2 flex-col sm:flex-row" aria-label="Model and Provider selection">
       {/* Provider Combobox */}
       <div className="relative flex w-full" onKeyDown={handleProviderKeyDown} ref={providerDropdownRef}>
         <div
@@ -239,9 +230,12 @@ export const ModelSelector = ({
           aria-controls="provider-listbox"
           aria-haspopup="listbox"
           tabIndex={0}
+          aria-label="Select provider"
         >
           <div className="flex items-center justify-between">
-            <div className="truncate">{provider?.name || 'Select provider'}</div>
+            <div className="truncate">
+              {provider?.name === 'Automatic' ? 'Automatic (recommended)' : provider?.name || 'Select provider'}
+            </div>
             <div
               className={classNames(
                 'i-ph:caret-down w-4 h-4 text-bolt-elements-textSecondary opacity-75',
@@ -266,7 +260,7 @@ export const ModelSelector = ({
                   onChange={(e) => setProviderSearchQuery(e.target.value)}
                   placeholder="Search providers..."
                   className={classNames(
-                    'w-full pl-2 py-1.5 rounded-md text-sm',
+                    'w-full pl-7 py-1.5 rounded-md text-sm',
                     'bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor',
                     'text-bolt-elements-textPrimary placeholder:text-bolt-elements-textTertiary',
                     'focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus',
@@ -319,23 +313,21 @@ export const ModelSelector = ({
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
-
                       if (setProvider) {
                         setProvider(providerOption);
-
-                        const firstModel = modelList.find((m) => m.provider === providerOption.name);
-
-                        if (firstModel && setModel) {
-                          setModel(firstModel.name);
+                        if (providerOption.name === 'Automatic') {
+                          setModel?.('auto');
+                        } else {
+                          const firstModel = modelList.find((m) => m.provider === providerOption.name);
+                          if (firstModel && setModel) setModel(firstModel.name);
                         }
                       }
-
                       setIsProviderDropdownOpen(false);
                       setProviderSearchQuery('');
                     }}
                     tabIndex={focusedProviderIndex === index ? 0 : -1}
                   >
-                    {providerOption.name}
+                    {providerOption.name === 'Automatic' ? 'Automatic (recommended)' : providerOption.name}
                   </div>
                 ))
               )}
@@ -366,9 +358,14 @@ export const ModelSelector = ({
           aria-controls="model-listbox"
           aria-haspopup="listbox"
           tabIndex={0}
+          aria-label="Select model"
         >
           <div className="flex items-center justify-between">
-            <div className="truncate">{modelList.find((m) => m.name === model)?.label || 'Select model'}</div>
+            <div className="truncate">
+              {provider?.name === 'Automatic'
+                ? 'Auto — deixe o Kodora escolher'
+                : modelList.find((m) => m.name === model)?.label || 'Select model'}
+            </div>
             <div
               className={classNames(
                 'i-ph:caret-down w-4 h-4 text-bolt-elements-textSecondary opacity-75',
@@ -393,7 +390,7 @@ export const ModelSelector = ({
                   onChange={(e) => setModelSearchQuery(e.target.value)}
                   placeholder="Search models..."
                   className={classNames(
-                    'w-full pl-2 py-1.5 rounded-md text-sm',
+                    'w-full pl-7 py-1.5 rounded-md text-sm',
                     'bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor',
                     'text-bolt-elements-textPrimary placeholder:text-bolt-elements-textTertiary',
                     'focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus',
@@ -433,7 +430,7 @@ export const ModelSelector = ({
                 filteredModels.map((modelOption, index) => (
                   <div
                     ref={(el) => (modelOptionsRef.current[index] = el)}
-                    key={index} // Consider using modelOption.name if unique
+                    key={index}
                     role="option"
                     aria-selected={model === modelOption.name}
                     className={classNames(
