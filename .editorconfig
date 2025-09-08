@@ -1,13 +1,24 @@
+# PATH: .editorconfig
 root = true
 
 [*]
 indent_style = space
+indent_size = 2
 end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 max_line_length = 120
-indent_size = 2
 
+# Markdown: não remover espaços finais (usados para quebra de linha)
 [*.md]
 trim_trailing_whitespace = false
+max_line_length = off
+
+# (Opcional) Scripts Windows em CRLF — úteis quando você cria .bat/.cmd/.ps1
+[*.bat]
+end_of_line = crlf
+[*.cmd]
+end_of_line = crlf
+[*.ps1]
+end_of_line = crlf

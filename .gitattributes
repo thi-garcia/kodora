@@ -1,8 +1,7 @@
 # PATH: .gitattributes
-# Normaliza todos os arquivos de texto para LF no repositório
 * text=auto eol=lf
 
-# Mantém CRLF para scripts de Windows (se tiver)
+# Scripts de Windows em CRLF
 *.bat text eol=crlf
 *.cmd text eol=crlf
 *.ps1 text eol=crlf

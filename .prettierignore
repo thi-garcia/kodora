@@ -1,2 +1,15 @@
+# PATH: .prettierignore
 pnpm-lock.yaml
 .astro
+
+# Adições seguras e comuns:
+node_modules
+dist
+build
+coverage
+.out
+.next
+.cache
+public/*
+*.min.js
+*.map
