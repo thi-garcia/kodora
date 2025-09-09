@@ -75,6 +75,7 @@ const CloudProvidersTab = () => {
         settings: value.settings,
         staticModels: value.staticModels || [],
         getDynamicModels: value.getDynamicModels,
+
         // estes dois podem ser string OU função em alguns providers
         getApiKeyLink: (value as any).getApiKeyLink,
         labelForGetApiKey: (value as any).labelForGetApiKey,
@@ -102,6 +103,7 @@ const CloudProvidersTab = () => {
   const handleToggleProvider = useCallback(
     (provider: IProviderConfig, enabled: boolean) => {
       settings.updateProviderSettings(provider.name, { ...provider.settings, enabled });
+
       if (enabled) {
         logStore.logProvider(`Provider ${provider.name} enabled`, { provider: provider.name });
         toast.success(`${provider.name} ativado`);
@@ -143,6 +145,7 @@ const CloudProvidersTab = () => {
           toast.error(`${provider.name}: defina o endpoint/base URL antes de testar`);
           return;
         }
+
         toast.success(`${provider.name}: configuração salva`);
       }
     } catch (e: any) {
@@ -153,8 +156,13 @@ const CloudProvidersTab = () => {
   // helpers para aceitar string OU função
   const getStringOrCall = (val: unknown): string | undefined => {
     try {
-      if (typeof val === 'function') return (val as () => string)();
-      if (typeof val === 'string' && val.trim()) return val;
+      if (typeof val === 'function') {
+        return (val as () => string)();
+      }
+
+      if (typeof val === 'string' && val.trim()) {
+        return val;
+      }
     } catch {}
     return undefined;
   };
@@ -287,8 +295,13 @@ const CloudProvidersTab = () => {
                                 'transition-all duration-200',
                               )}
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleUpdateBaseUrl(provider, e.currentTarget.value);
-                                if (e.key === 'Escape') setEditingProvider(null);
+                                if (e.key === 'Enter') {
+                                  handleUpdateBaseUrl(provider, e.currentTarget.value);
+                                }
+
+                                if (e.key === 'Escape') {
+                                  setEditingProvider(null);
+                                }
                               }}
                               onBlur={(e) => handleUpdateBaseUrl(provider, e.target.value)}
                               autoFocus

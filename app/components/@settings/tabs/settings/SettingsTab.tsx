@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { classNames } from '~/utils/classNames';
-import { Switch } from '~/components/ui/Switch';
 import type { UserProfile } from '~/components/@settings/core/types';
+import { Switch } from '~/components/ui/Switch';
+import { classNames } from '~/utils/classNames';
 import { isMac } from '~/utils/os';
 
 // Helper to get modifier key symbols/text
@@ -28,7 +28,7 @@ export default function SettingsTab() {
       ? JSON.parse(saved)
       : {
           notifications: true,
-          language: 'en',
+          language: 'pt-BR',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         };
   });
@@ -90,16 +90,8 @@ export default function SettingsTab() {
               'transition-all duration-200',
             )}
           >
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-            <option value="de">Deutsch</option>
-            <option value="it">Italiano</option>
-            <option value="pt">Português</option>
-            <option value="ru">Русский</option>
-            <option value="zh">中文</option>
-            <option value="ja">日本語</option>
-            <option value="ko">한국어</option>
+            <option value="pt">Portuguese (BR)</option>
+            <option value="en">English (EN)</option>
           </select>
         </div>
 

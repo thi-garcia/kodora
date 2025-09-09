@@ -60,12 +60,14 @@ export const ModelSelector = ({
         setIsModelDropdownOpen(false);
         setModelSearchQuery('');
       }
+
       if (providerDropdownRef.current && !providerDropdownRef.current.contains(event.target as Node)) {
         setIsProviderDropdownOpen(false);
         setProviderSearchQuery('');
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
+
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
@@ -77,6 +79,7 @@ export const ModelSelector = ({
           m.name.toLowerCase().includes(modelSearchQuery.toLowerCase()),
       );
     }
+
     return [...modelList]
       .filter((e) => e.provider === provider?.name && e.name)
       .filter(
@@ -94,15 +97,22 @@ export const ModelSelector = ({
   useEffect(() => setFocusedProviderIndex(-1), [providerSearchQuery, isProviderDropdownOpen]);
 
   useEffect(() => {
-    if (isModelDropdownOpen && modelSearchInputRef.current) modelSearchInputRef.current.focus();
+    if (isModelDropdownOpen && modelSearchInputRef.current) {
+      modelSearchInputRef.current.focus();
+    }
   }, [isModelDropdownOpen]);
 
   useEffect(() => {
-    if (isProviderDropdownOpen && providerSearchInputRef.current) providerSearchInputRef.current.focus();
+    if (isProviderDropdownOpen && providerSearchInputRef.current) {
+      providerSearchInputRef.current.focus();
+    }
   }, [isProviderDropdownOpen]);
 
   const handleModelKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (!isModelDropdownOpen) return;
+    if (!isModelDropdownOpen) {
+      return;
+    }
+
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
@@ -114,12 +124,14 @@ export const ModelSelector = ({
         break;
       case 'Enter':
         e.preventDefault();
+
         if (focusedModelIndex >= 0 && focusedModelIndex < filteredModels.length) {
           const selectedModel = filteredModels[focusedModelIndex];
           setModel?.(selectedModel.name);
           setIsModelDropdownOpen(false);
           setModelSearchQuery('');
         }
+
         break;
       case 'Escape':
         e.preventDefault();
@@ -130,12 +142,16 @@ export const ModelSelector = ({
         if (!e.shiftKey && focusedModelIndex === filteredModels.length - 1) {
           setIsModelDropdownOpen(false);
         }
+
         break;
     }
   };
 
   const handleProviderKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (!isProviderDropdownOpen) return;
+    if (!isProviderDropdownOpen) {
+      return;
+    }
+
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
@@ -147,20 +163,28 @@ export const ModelSelector = ({
         break;
       case 'Enter':
         e.preventDefault();
+
         if (focusedProviderIndex >= 0 && focusedProviderIndex < filteredProviders.length) {
           const selectedProvider = filteredProviders[focusedProviderIndex];
+
           if (setProvider) {
             setProvider(selectedProvider);
+
             if (selectedProvider.name === 'Automatic') {
               setModel?.('auto');
             } else {
               const firstModel = modelList.find((m) => m.provider === selectedProvider.name);
-              if (firstModel && setModel) setModel(firstModel.name);
+
+              if (firstModel && setModel) {
+                setModel(firstModel.name);
+              }
             }
           }
+
           setIsProviderDropdownOpen(false);
           setProviderSearchQuery('');
         }
+
         break;
       case 'Escape':
         e.preventDefault();
@@ -171,6 +195,7 @@ export const ModelSelector = ({
         if (!e.shiftKey && focusedProviderIndex === filteredProviders.length - 1) {
           setIsProviderDropdownOpen(false);
         }
+
         break;
     }
   };
@@ -188,7 +213,10 @@ export const ModelSelector = ({
   }, [focusedProviderIndex]);
 
   useEffect(() => {
-    if (providerListWithAuto.length === 0) return;
+    if (providerListWithAuto.length === 0) {
+      return;
+    }
+
     if (!provider || !providerListWithAuto.some((p) => p.name === provider.name)) {
       setProvider?.(AUTO_PROVIDER);
       setModel?.('auto');
@@ -313,15 +341,21 @@ export const ModelSelector = ({
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
+
                       if (setProvider) {
                         setProvider(providerOption);
+
                         if (providerOption.name === 'Automatic') {
                           setModel?.('auto');
                         } else {
                           const firstModel = modelList.find((m) => m.provider === providerOption.name);
-                          if (firstModel && setModel) setModel(firstModel.name);
+
+                          if (firstModel && setModel) {
+                            setModel(firstModel.name);
+                          }
                         }
                       }
+
                       setIsProviderDropdownOpen(false);
                       setProviderSearchQuery('');
                     }}

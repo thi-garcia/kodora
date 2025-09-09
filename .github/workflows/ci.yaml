@@ -1,9 +1,11 @@
+# PATH: .github/workflows/ci.yaml
 name: CI/CD
 
 on:
   push:
     branches:
       - master
+      - main
   pull_request:
 
 jobs:
@@ -17,11 +19,14 @@ jobs:
       - name: Setup and Build
         uses: ./.github/actions/setup-and-build
 
+      - name: Run Prettier check
+        run: pnpm run format:check
+
+      - name: Run ESLint
+        run: pnpm run lint
+
       - name: Run type check
         run: pnpm run typecheck
-
-      # - name: Run ESLint
-      #   run: pnpm run lint
 
       - name: Run tests
         run: pnpm run test

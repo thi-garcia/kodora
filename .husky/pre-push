@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# PATH: .husky/pre-push
+set -euo pipefail
+
+echo "🚀 pre-push: tests + typecheck"
+
+PNPM_CMD="pnpm"
+UNAME="$(uname -s | tr '[:upper:]' '[:lower:]')"
+if [[ "${OS:-}" == "Windows_NT" || "$UNAME" == *"mingw"* || "$UNAME" == *"msys"* ]]; then
+  PNPM_CMD="pnpm.cmd"
+fi
+
+echo "🧪 Tests..."
+$PNPM_CMD -s test || {
+  echo "❌ Testes falharam."
+  exit 1
+}
+
+echo "🔡 Typecheck..."
+$PNPM_CMD -s typecheck || {
+  echo "❌ Typecheck falhou."
+  exit 1
+}
+
+echo "✅ pre-push OK"

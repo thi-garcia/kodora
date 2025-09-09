@@ -1,12 +1,17 @@
+// PATH: functions/[[path]].ts
 import type { ServerBuild } from '@remix-run/cloudflare';
 import { createPagesFunctionHandler } from '@remix-run/cloudflare-pages';
 
-export const onRequest: PagesFunction = async (context) => {
-  const serverBuild = (await import('../build/server')) as unknown as ServerBuild;
+let _build: ServerBuild | undefined;
 
-  const handler = createPagesFunctionHandler({
-    build: serverBuild,
-  });
+export const onRequest: PagesFunction = async (context) => {
+  if (!_build) {
+    // Import dinâmico não literal → o TS não tenta resolver ../build/server no typecheck.
+    const mod = (await import('../build/' + 'server')) as unknown as ServerBuild;
+    _build = mod;
+  }
+
+  const handler = createPagesFunctionHandler({ build: _build! });
 
   return handler(context);
 };

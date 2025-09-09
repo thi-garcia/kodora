@@ -1,19 +1,19 @@
 // PATH: app/components/@settings/tabs/providers/local/LocalProvidersTab.tsx
-import React, { useEffect, useState, useCallback } from 'react';
-import { Switch } from '~/components/ui/Switch';
-import { useSettings } from '~/lib/hooks/useSettings';
-import { LOCAL_PROVIDERS, URL_CONFIGURABLE_PROVIDERS } from '~/lib/stores/settings';
-import type { IProviderConfig } from '~/types/model';
-import { logStore } from '~/lib/stores/logs';
-import { motion, AnimatePresence } from 'framer-motion';
-import { classNames } from '~/utils/classNames';
-import { BsRobot } from 'react-icons/bs';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { IconType } from 'react-icons';
 import { BiChip } from 'react-icons/bi';
+import { BsRobot } from 'react-icons/bs';
 import { TbBrandOpenai } from 'react-icons/tb';
-import { providerBaseUrlEnvKeys } from '~/utils/constants';
-import { useToast } from '~/components/ui/use-toast';
 import { Progress } from '~/components/ui/Progress';
+import { Switch } from '~/components/ui/Switch';
+import { useToast } from '~/components/ui/use-toast';
+import { useSettings } from '~/lib/hooks/useSettings';
+import { logStore } from '~/lib/stores/logs';
+import { LOCAL_PROVIDERS, URL_CONFIGURABLE_PROVIDERS } from '~/lib/stores/settings';
+import type { IProviderConfig } from '~/types/model';
+import { classNames } from '~/utils/classNames';
+import { providerBaseUrlEnvKeys } from '~/utils/constants';
 import OllamaModelInstaller from './OllamaModelInstaller';
 
 type ProviderName = 'Ollama' | 'LMStudio' | 'OpenAILike';
@@ -32,6 +32,19 @@ const PROVIDER_DESCRIPTIONS: Record<ProviderName, string> = {
 
 const OLLAMA_API_URL = 'http://127.0.0.1:11434';
 const LMSTUDIO_DEFAULT_URL = 'http://127.0.0.1:1234';
+
+/** ---------- Helpers de tipagem segura p/ JSON desconhecido ---------- */
+type JsonObj = Record<string, unknown>;
+
+function getArrayLen(obj: unknown, key: 'models' | 'data') {
+  if (obj && typeof obj === 'object' && Array.isArray((obj as JsonObj)[key])) {
+    return ((obj as JsonObj)[key] as unknown[]).length;
+  }
+
+  return 0;
+}
+
+/** -------------------------------------------------------------------- */
 
 interface OllamaModel {
   name: string;
@@ -110,12 +123,16 @@ export default function LocalProvidersTab() {
 
   useEffect(() => {
     const ollamaProvider = filteredProviders.find((p) => p.name === 'Ollama');
-    if (ollamaProvider?.settings.enabled) fetchOllamaModels();
+
+    if (ollamaProvider?.settings.enabled) {
+      fetchOllamaModels();
+    }
   }, [filteredProviders]);
 
   const fetchOllamaModels = async () => {
     try {
       setIsLoadingModels(true);
+
       const response = await fetch(`${OLLAMA_API_URL}/api/tags`);
       const data = (await response.json()) as { models: OllamaModel[] };
       setOllamaModels(data.models.map((m) => ({ ...m, status: 'idle' as const })));
@@ -133,20 +150,34 @@ export default function LocalProvidersTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: modelName }),
       });
-      if (!response.ok) throw new Error(`Failed to update ${modelName}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to update ${modelName}`);
+      }
 
       const reader = response.body?.getReader();
-      if (!reader) throw new Error('No response reader available');
+
+      if (!reader) {
+        throw new Error('No response reader available');
+      }
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+
+        if (done) {
+          break;
+        }
 
         const text = new TextDecoder().decode(value);
         const lines = text.split('\n').filter(Boolean);
+
         for (const line of lines) {
           const raw = JSON.parse(line);
-          if (!isOllamaPullResponse(raw)) continue;
+
+          if (!isOllamaPullResponse(raw)) {
+            continue;
+          }
+
           setOllamaModels((curr) =>
             curr.map((m) =>
               m.name === modelName
@@ -167,6 +198,7 @@ export default function LocalProvidersTab() {
 
       const updated = await fetch(`${OLLAMA_API_URL}/api/tags`);
       const updatedData = (await updated.json()) as { models: OllamaModel[] };
+
       return !!updatedData.models.find((m) => m.name === modelName);
     } catch (error) {
       console.error(`Error updating ${modelName}:`, error);
@@ -206,7 +238,11 @@ export default function LocalProvidersTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: modelName }),
       });
-      if (!response.ok) throw new Error(`Failed to delete ${modelName}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete ${modelName}`);
+      }
+
       setOllamaModels((cur) => cur.filter((m) => m.name !== modelName));
       toast(`Removido ${modelName}`);
     } catch (err) {
@@ -219,22 +255,34 @@ export default function LocalProvidersTab() {
   const testLocalProvider = async (provider: IProviderConfig) => {
     try {
       const base = provider.settings.baseUrl?.trim();
+
       if (!base) {
         toast('Defina o endpoint primeiro');
         return;
       }
+
       if (provider.name === 'Ollama') {
         const r = await fetch(`${base}/api/tags`);
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        const j = await r.json();
-        toast(`Ollama OK (${Array.isArray(j?.models) ? j.models.length : 0} modelos)`);
+
+        if (!r.ok) {
+          throw new Error(`HTTP ${r.status}`);
+        }
+
+        const j = await r.json().catch(() => ({}));
+        toast(`Ollama OK (${getArrayLen(j, 'models')} modelos)`);
+
         return;
       }
+
       // LM Studio / OpenAILike: padrão OpenAI /v1/models
       const r = await fetch(`${base.replace(/\/$/, '')}/v1/models`);
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const j = await r.json();
-      const n = Array.isArray(j?.data) ? j.data.length : 0;
+
+      if (!r.ok) {
+        throw new Error(`HTTP ${r.status}`);
+      }
+
+      const j = await r.json().catch(() => ({}));
+      const n = getArrayLen(j, 'data');
       toast(`${provider.name} OK (${n} modelos)`);
     } catch (e: any) {
       toast(`${provider.name}: falha ao conectar${e?.message ? ` — ${e.message}` : ''}`);
@@ -433,8 +481,11 @@ export default function LocalProvidersTab() {
                             'transition-all duration-200',
                           )}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleUpdateBaseUrl(provider, e.currentTarget.value);
-                            else if (e.key === 'Escape') setEditingProvider(null);
+                            if (e.key === 'Enter') {
+                              handleUpdateBaseUrl(provider, e.currentTarget.value);
+                            } else if (e.key === 'Escape') {
+                              setEditingProvider(null);
+                            }
                           }}
                           onBlur={(e) => handleUpdateBaseUrl(provider, e.target.value)}
                           autoFocus
@@ -546,7 +597,9 @@ export default function LocalProvidersTab() {
                               model={model}
                               onUpdate={() => handleUpdateOllamaModel(model.name)}
                               onDelete={() => {
-                                if (window.confirm(`Remover ${model.name}?`)) handleDeleteOllamaModel(model.name);
+                                if (window.confirm(`Remover ${model.name}?`)) {
+                                  handleDeleteOllamaModel(model.name);
+                                }
                               }}
                             />
                           </div>
@@ -659,8 +712,11 @@ export default function LocalProvidersTab() {
                                 'transition-all duration-200',
                               )}
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleUpdateBaseUrl(provider, e.currentTarget.value);
-                                else if (e.key === 'Escape') setEditingProvider(null);
+                                if (e.key === 'Enter') {
+                                  handleUpdateBaseUrl(provider, e.currentTarget.value);
+                                } else if (e.key === 'Escape') {
+                                  setEditingProvider(null);
+                                }
                               }}
                               onBlur={(e) => handleUpdateBaseUrl(provider, e.target.value)}
                               autoFocus
@@ -720,14 +776,21 @@ export default function LocalProvidersTab() {
 }
 
 function ModelStatusBadge({ status }: { status?: string }) {
-  if (!status || status === 'idle') return null;
+  if (!status || status === 'idle') {
+    return null;
+  }
+
   const statusConfig = {
     updating: { bg: 'bg-yellow-500/10', text: 'text-yellow-500', label: 'Atualizando' },
     updated: { bg: 'bg-green-500/10', text: 'text-green-500', label: 'Atualizado' },
     error: { bg: 'bg-red-500/10', text: 'text-red-500', label: 'Erro' },
   } as const;
   const cfg = (statusConfig as any)[status];
-  if (!cfg) return null;
+
+  if (!cfg) {
+    return null;
+  }
+
   return (
     <span className={classNames('px-2 py-0.5 rounded-full text-xs font-medium', cfg.bg, cfg.text)}>{cfg.label}</span>
   );

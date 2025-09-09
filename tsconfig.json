@@ -1,3 +1,4 @@
+// PATH: tsconfig.json
 {
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
@@ -24,7 +25,6 @@
     "paths": {
       "~/*": ["./app/*"]
     },
-    // vite takes care of building everything, not tsc
     "noEmit": true
   },
   "include": [
@@ -33,6 +33,8 @@
     "**/.server/**/*.ts",
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
-    "**/.client/**/*.tsx"
-  ]
+    "**/.client/**/*.tsx",
+    "types"
+  ],
+  "exclude": ["node_modules", "build", "dist"]
 }

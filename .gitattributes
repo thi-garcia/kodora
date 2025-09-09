@@ -1,7 +1,11 @@
 # PATH: .gitattributes
 * text=auto eol=lf
 
-# Scripts de Windows em CRLF
+# Windows scripts que precisam CRLF
 *.bat text eol=crlf
 *.cmd text eol=crlf
 *.ps1 text eol=crlf
+
+# Hooks e shell scripts SEMPRE em LF
+.husky/* text eol=lf
+*.sh text eol=lf

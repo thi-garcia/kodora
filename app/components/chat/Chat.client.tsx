@@ -5,30 +5,30 @@
  * Preventing TS checks with files presented in the video for a better presentation.
  */
 import { useStore } from '@nanostores/react';
+import { useSearchParams } from '@remix-run/react';
 import type { Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
+import Cookies from 'js-cookie';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
+import { useSettings } from '~/lib/hooks/useSettings';
 import { description, useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
-import { workbenchStore } from '~/lib/stores/workbench';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
-import { cubicEasingFn } from '~/utils/easings';
-import { createScopedLogger, renderLogger } from '~/utils/logger';
-import { BaseChat } from './BaseChat';
-import Cookies from 'js-cookie';
-import { debounce } from '~/utils/debounce';
-import { useSettings } from '~/lib/hooks/useSettings';
-import type { ProviderInfo } from '~/types/model';
-import { useSearchParams } from '@remix-run/react';
-import { createSampler } from '~/utils/sampler';
-import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';
 import { logStore } from '~/lib/stores/logs';
 import { streamingState } from '~/lib/stores/streaming';
-import { filesToArtifacts } from '~/utils/fileUtils';
 import { supabaseConnection } from '~/lib/stores/supabase';
+import { workbenchStore } from '~/lib/stores/workbench';
+import type { ProviderInfo } from '~/types/model';
+import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
+import { debounce } from '~/utils/debounce';
+import { cubicEasingFn } from '~/utils/easings';
+import { filesToArtifacts } from '~/utils/fileUtils';
+import { createScopedLogger, renderLogger } from '~/utils/logger';
+import { createSampler } from '~/utils/sampler';
+import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';
+import { BaseChat } from './BaseChat';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -147,18 +147,24 @@ function chooseProviderAndModel(opts: {
     if (isCodey && short && !hasImages) {
       return { provider: openrouter, model: 'deepseek/deepseek-coder' };
     }
+
     if (hasImages || !short) {
       return { provider: openrouter, model: 'openai/gpt-4o-mini' };
     }
+
     return { provider: openrouter, model: 'meta-llama/llama-3.1-8b-instruct' };
   }
 
   if (openai) {
-    if (hasImages || !short) return { provider: openai, model: 'gpt-4o-mini' };
+    if (hasImages || !short) {
+      return { provider: openai, model: 'gpt-4o-mini' };
+    }
+
     return { provider: openai, model: 'gpt-4o-mini' };
   }
 
   const first = activeProviders?.[0];
+
   return first
     ? { provider: first, model: undefined }
     : { provider: { name: 'OpenRouter' } as ProviderInfo, model: 'meta-llama/llama-3.1-8b-instruct' };
@@ -174,6 +180,7 @@ async function resolveAutoProviderModel(opts: {
 }) {
   try {
     const mod = await import('~/components/@settings/tabs/providers/service-status/provider-factory');
+
     if (mod && typeof mod.resolveAutoProviderModel === 'function') {
       return await mod.resolveAutoProviderModel(opts);
     }
@@ -260,6 +267,7 @@ export const ChatImpl = memo(
       onFinish: (message, response) => {
         const usage = response.usage;
         setData(undefined);
+
         if (usage) {
           console.log('Token usage:', usage);
           logStore.logProvider('Chat response completed', {
@@ -271,6 +279,7 @@ export const ChatImpl = memo(
             messageLength: message.content.length,
           });
         }
+
         logger.debug('Finished streaming');
       },
       initialMessages,
@@ -279,6 +288,7 @@ export const ChatImpl = memo(
 
     useEffect(() => {
       const prompt = searchParams.get('prompt');
+
       if (prompt) {
         setSearchParams({});
         runAnimation();
@@ -327,6 +337,7 @@ export const ChatImpl = memo(
 
     const scrollTextArea = () => {
       const textarea = textareaRef.current;
+
       if (textarea) {
         textarea.scrollTop = textarea.scrollHeight;
       }
@@ -347,8 +358,10 @@ export const ChatImpl = memo(
 
     useEffect(() => {
       const textarea = textareaRef.current;
+
       if (textarea) {
         textarea.style.height = 'auto';
+
         const scrollHeight = textarea.scrollHeight;
         textarea.style.height = `${Math.min(scrollHeight, TEXTAREA_MAX_HEIGHT)}px`;
         textarea.style.overflowY = scrollHeight > TEXTAREA_MAX_HEIGHT ? 'auto' : 'hidden';
@@ -356,7 +369,9 @@ export const ChatImpl = memo(
     }, [input, textareaRef]);
 
     const runAnimation = async () => {
-      if (chatStarted) return;
+      if (chatStarted) {
+        return;
+      }
 
       await Promise.all([
         animate('#examples', { opacity: 0, display: 'none' }, { duration: 0.1 }),
@@ -369,7 +384,10 @@ export const ChatImpl = memo(
 
     const sendMessage = async (_event: React.UIEvent, messageInput?: string) => {
       const messageContent = messageInput || input;
-      if (!messageContent?.trim()) return;
+
+      if (!messageContent?.trim()) {
+        return;
+      }
 
       if (isLoading) {
         abort();
@@ -378,6 +396,7 @@ export const ChatImpl = memo(
 
       const finalMessageContent = messageContent;
       runAnimation();
+
       const hasImages = (imageDataList?.length ?? 0) > 0;
 
       const { provider: resolvedProvider, model: resolvedModel } =
@@ -409,6 +428,7 @@ export const ChatImpl = memo(
               } else {
                 toast.warning('Failed to import starter template\n Continuing with blank template');
               }
+
               return null;
             });
 
@@ -439,6 +459,7 @@ export const ChatImpl = memo(
               resetEnhancer();
               textareaRef.current?.blur();
               setFakeLoading(false);
+
               return;
             }
           }
@@ -463,6 +484,7 @@ export const ChatImpl = memo(
         setImageDataList([]);
         resetEnhancer();
         textareaRef.current?.blur();
+
         return;
       }
 
@@ -515,7 +537,10 @@ export const ChatImpl = memo(
 
     useEffect(() => {
       const storedApiKeys = Cookies.get('apiKeys');
-      if (storedApiKeys) setApiKeys(JSON.parse(storedApiKeys));
+
+      if (storedApiKeys) {
+        setApiKeys(JSON.parse(storedApiKeys));
+      }
     }, []);
 
     const handleModelChange = (newModel: string) => {
@@ -526,6 +551,7 @@ export const ChatImpl = memo(
     const handleProviderChange = (newProvider: ProviderInfo) => {
       setProvider(newProvider);
       Cookies.set('selectedProvider', newProvider.name, { expires: 30 });
+
       if (newProvider.name === 'Automatic') {
         setModel('auto');
         Cookies.set('selectedModel', 'auto', { expires: 30 });
@@ -560,7 +586,10 @@ export const ChatImpl = memo(
         importChat={importChat}
         exportChat={exportChat}
         messages={messages.map((message, i) => {
-          if (message.role === 'user') return message;
+          if (message.role === 'user') {
+            return message;
+          }
+
           return { ...message, content: parsedMessages[i] || '' };
         })}
         enhancePrompt={() => {

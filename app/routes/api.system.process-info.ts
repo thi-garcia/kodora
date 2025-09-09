@@ -343,7 +343,7 @@ const getMockProcessInfo = (): ProcessInfo[] => {
       name: 'bolt',
       cpu: randomHighCPU(),
       memory: 15 + randomMem(),
-      command: 'Bolt AI Process',
+      command: 'Kodora AI Process',
       timestamp,
     },
     {
