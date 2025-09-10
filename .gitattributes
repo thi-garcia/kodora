@@ -8,4 +8,5 @@
 
 # Hooks e shell scripts SEMPRE em LF
 .husky/* text eol=lf
+
 *.sh text eol=lf
