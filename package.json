@@ -42,7 +42,12 @@
     "electron:build:mac": "rm -rf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mac",
     "electron:build:win": "rm -rf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --win",
     "electron:build:linux": "rm -rf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --linux",
-    "electron:build:dist": "rm -rf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mwl"
+    "electron:build:dist": "rm -rf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mwl",
+    "sync:dry": "bash scripts/sync-upstream.sh --dry-run",
+    "sync": "bash scripts/sync-upstream.sh --commit --push --no-verify",
+    "sync:pick": "bash scripts/sync-upstream.sh --commit --push --no-verify",
+    "sync:merge": "bash scripts/sync-upstream.sh --commit --push --no-verify --merge",
+    "sync:rebase": "bash scripts/sync-upstream.sh --commit --push --no-verify --rebase"
   },
   "engines": {
     "node": ">=18.18.0"
